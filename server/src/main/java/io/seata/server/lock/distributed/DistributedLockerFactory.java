@@ -23,8 +23,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
+ * Distributed locker factory
  * @author zhongxiang.wang
- * @description Distributed locker factory
  */
 public class DistributedLockerFactory {
 
@@ -45,16 +45,18 @@ public class DistributedLockerFactory {
         if (DISTRIBUTED_LOCKER == null) {
             synchronized (DistributedLocker.class) {
                 if (DISTRIBUTED_LOCKER == null) {
+                    DistributedLocker distributedLocker = null;
                     try {
                         if (!"file".equals(lockerType)) {
-                            DISTRIBUTED_LOCKER = EnhancedServiceLoader.load(DistributedLocker.class, lockerType);
+                            distributedLocker = EnhancedServiceLoader.load(DistributedLocker.class, lockerType);
                         }
                     } catch (EnhancedServiceNotFoundException ex) {
-                        LOGGER.error("Get distributed locker failed:{}", ex.getMessage(), ex);
+                        LOGGER.error("Get distributed locker failed: {}", ex.getMessage(), ex);
                     }
-                    if (DISTRIBUTED_LOCKER == null) {
-                        DISTRIBUTED_LOCKER = new DefaultDistributedLocker();
+                    if (distributedLocker == null) {
+                        distributedLocker = new DefaultDistributedLocker();
                     }
+                    DISTRIBUTED_LOCKER = distributedLocker;
                 }
             }
         }
